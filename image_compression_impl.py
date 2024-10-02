@@ -3,11 +3,30 @@ from PIL import Image
 
 # Function to load and preprocess the image
 def load_image(image_path):
-    raise NotImplementedError('You need to implement this function')
+    # Load the image using PIL
+    img = Image.open(image_path)
+    
+    # Convert image to RGB (ignores transparency if present)
+    img = img.convert('RGB')
+    
+    # Convert image to a numpy array
+    img_np = np.array(img)
+    return img_np  # Return the NumPy array
 
 # Function to perform SVD on a single channel of the image matrix
 def compress_channel_svd(channel_matrix, rank):
-    raise NotImplementedError('You need to implement this function')
+    # Perform SVD
+    U, S, Vt = np.linalg.svd(channel_matrix, full_matrices=False)
+    
+    # Retain only the top 'rank' singular values and corresponding vectors
+    S = np.diag(S[:rank])  # Create diagonal matrix of the top 'rank' singular values
+    U_reduced = U[:, :rank]  # Retain the top 'rank' columns of U
+    Vt_reduced = Vt[:rank, :]  # Retain the top 'rank' rows of Vt
+    
+    # Reconstruct the compressed channel
+    compressed_channel = np.dot(U_reduced, np.dot(S, Vt_reduced))
+    
+    return compressed_channel  # Return the compressed single channel image
 
 # Function to perform SVD for image compression
 def image_compression_svd(image_np, rank):
@@ -53,7 +72,7 @@ def save_result(original_image_np, quantized_image_np, output_path):
     
 if __name__ == '__main__':
     # Load and process the image
-    image_path = 'favorite_image.png'  
+    image_path = 'favorite_image.jfif'  
     output_path = 'compressed_image.png'  
     image_np = load_image(image_path)
 
